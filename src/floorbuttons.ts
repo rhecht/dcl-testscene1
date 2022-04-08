@@ -13,7 +13,15 @@ const floorTeleportLocations = [
   [
     { x: 13.57, y: 10.8, z: 2.39 }, 
     { x: 9.02, y: 1.11, z: 6.76 }
-  ] //Third floor - 2
+  ], //Third floor - 2
+  [
+    { x: 13.57, y: 15.8, z: 2.39 }, 
+    { x: 9.02, y: 1.11, z: 6.76 }
+  ], //Fourth floor - 3
+  [
+    { x: 13.57, y: 19.8, z: 2.39 }, 
+    { x: 9.02, y: 1.11, z: 6.76 }
+  ], //Fifth floor - 4
 
 ]
 
@@ -23,74 +31,62 @@ let currentFloor = 0
 
 export class FloorButtons extends Entity{
 
-  public upButton: Entity = new Entity()
-  public downButton: Entity = new Entity()
-
-  public upButton2: Entity = new Entity()
-  public downButton2: Entity = new Entity()
-
+  public button1: Entity = new Entity()
+  public button2: Entity = new Entity()
+  public button3: Entity = new Entity()
+  public button4: Entity = new Entity()
+  public button5: Entity = new Entity()
 
   constructor(
     position: Vector3
 
   ){
     super()
-    this.addComponent(new BoxShape())
+//    this.addComponent(new BoxShape())
     this.addComponent(new Transform({
       position,
       scale: new Vector3(.1,2,1)
     }))
     engine.addEntity(this)
 
-    this.upButtonFunc(this.upButton, [.8,.2,0], [.2,.1,.2], "Going up?" )
-    this.downButtonFunc(this.downButton, [.8,0,0], [.2,.1,.2], "Down down down!" )
-
-    /*
-//    const upButtonMaterial = new Material()
-//    upButtonMaterial.albedoColor = Color3.Magenta()
-
-    this.upButton.addComponent(new BoxShape())
-    this.upButton.addComponent(new Transform({
-      position:new Vector3(.5,.2,0),
-      scale:new Vector3(.2,.1,.2)
-    }))
-    this.upButton.addComponent(upButtonMaterial)
-    this.upButton.setParent(this)
-    this.upButton.addComponent(
-      new OnPointerDown((e) => {
-        this.goUp()
-      },{
-        hoverText: "Going up?!"
-      })
-    )
-*/
-
-/*
-
-//const downButtonMaterial = new Material()
-//downButtonMaterial.albedoColor = Color3.Teal()
-
-    this.downButton.addComponent(new BoxShape())
-    this.downButton.addComponent(new Transform({
-      position:new Vector3(.5,0,0),
-      scale:new Vector3(.2,.1,.2)
-    }))
-    this.downButton.addComponent(downButtonMaterial)
-    this.downButton.setParent(this)
-    this.downButton.addComponent(
-      new OnPointerDown((e) => {
-        this.goDown()
-      },{
-        hoverText: "Down down down!"
-      })
-    )
-*/
+this.buttonFunc(this.button1, [-.25,-.325,0], [.2,.1,.2], "Floor 1", 1 )
+this.buttonFunc(this.button2, [-.25,-.175,0], [.2,.1,.2], "Floor 2", 2 )
+this.buttonFunc(this.button3, [-.25,-.025,0], [.2,.1,.2], "Floor 3", 3 )
+this.buttonFunc(this.button4, [-.25,.125,0], [.2,.1,.2], "Floor 4", 4 )
+this.buttonFunc(this.button5, [-.25,.275,0], [.2,.1,.2], "Floor 5", 5 )
 
   }
 
-  upButtonFunc(buttonName: Entity, posDimensions: float[], scaleDimensions: float[], hoverTextString:string){
+  buttonFunc(buttonName: Entity, posDimensions: float[], scaleDimensions: float[], hoverTextString:string, floorNumber:number){
     var buttonMaterial = new Material()
-    buttonMaterial.albedoColor = Color3.Magenta()
+
+    switch (floorNumber){
+      case 1:{
+        buttonMaterial.albedoColor = Color3.Red()
+        break;
+      }
+      case 2:{
+        buttonMaterial.albedoColor = Color3.White()
+        break;
+      }
+      case 3:{
+        buttonMaterial.albedoColor = Color3.Blue()
+        break;
+      }
+      case 4:{
+        buttonMaterial.albedoColor = Color3.Green()
+        break;
+      }
+      case 5:{
+        buttonMaterial.albedoColor = Color3.Magenta()
+        break;
+      }
+      default:{
+        buttonMaterial.albedoColor = Color3.White()
+        break;
+      }
+    }
+
 
     buttonName.addComponent(new BoxShape())
     buttonName.addComponent(new Transform({
@@ -101,56 +97,21 @@ export class FloorButtons extends Entity{
     buttonName.setParent(this)
 
 
-    this.upButton.addComponent(
+    buttonName.addComponent(
       new OnPointerDown((e) => {
-        this.goUp()
+        this.goToFloor(floorNumber)
       },{
         hoverText: hoverTextString
       })
     )
   }
 
-  downButtonFunc(buttonNameD: Entity, posDimensionsD: float[], scaleDimensionsD: float[], hoverTextStringD:string){
-    var buttonMaterialD = new Material()
-    buttonMaterialD.albedoColor = Color3.Teal()
 
-    buttonNameD.addComponent(new BoxShape())
-    buttonNameD.addComponent(new Transform({
-      position:new Vector3(posDimensionsD[0],posDimensionsD[1],posDimensionsD[2]),
-      scale:new Vector3(scaleDimensionsD[0],scaleDimensionsD[1],scaleDimensionsD[2])
-    }))
-    buttonNameD.addComponent(buttonMaterialD)
-    buttonNameD.setParent(this)
-
-
-    buttonNameD.addComponent(
-        new OnPointerDown((e) => {
-          this.goDown()
-        },{
-          hoverText: hoverTextStringD
-        })
-      )
-  }
-
-
-  goUp(){
-    currentFloor++
-    if(currentFloor >= floorTeleportLocations.length){
-      currentFloor=0
-    }
-    const [location, lookAt] = floorTeleportLocations[currentFloor]
+  goToFloor(floorNumber: number){
+    const [location, lookAt] = floorTeleportLocations[floorNumber-1]
     movePlayerTo(location, lookAt)
-
     log(currentFloor)
+
   }
 
-  goDown(){
-    currentFloor--
-    if(currentFloor < 0){
-      currentFloor=floorTeleportLocations.length-1
-    }
-    const [location, lookAt] = floorTeleportLocations[currentFloor]
-    movePlayerTo(location, lookAt)
-  log(currentFloor)
-  }
 }
